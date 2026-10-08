@@ -9,6 +9,26 @@ class WordleGame:
         self.target = random.choice([w for w in WORDS if len(w) == length])
         self.history = []
 
+    def show_history(self):
+        print("\nGuess History:")
+        for number, (guess, feedback) in enumerate(self.history, start=1):
+            print(f"{number}. {guess} -> {' '.join(feedback)}")
+
+    def show_summary(self, result):
+        print("\n--- Session Summary ---")
+        print(f"Word length: {self.length}")
+        print(f"Guesses used: {len(self.history)}")
+        print(f"Result: {result}")
+
+        if result == "Won":
+            print(f"Solved in {len(self.history)} guess(es)!")
+        elif result == "Lost":
+            print(f"The word was: {self.target}")
+        else:
+            print("Game ended by the player.")
+
+        print("-----------------------")
+
     def run(self):
         print(f"Wordle — {self.length} letters, 6 guesses.")
 
@@ -19,14 +39,17 @@ class WordleGame:
 
             # Allow the player to quit without using a turn.
             if guess == "q":
+                self.show_history()
+                self.show_summary("Quit")
                 return
 
-            # Invalid guesses do not consume a turn.
+            # Invalid guesses do not consume a turn
+            # and are not added to history.
             if len(guess) != self.length or not guess.isalpha():
                 print("Enter a valid word of the required length.")
                 continue
 
-            # This is an accepted guess, so now consume one turn.
+            # This is an accepted guess.
             accepted_guesses += 1
 
             feedback = evaluate(self.target, guess)
@@ -34,11 +57,21 @@ class WordleGame:
 
             print(" ".join(feedback))
 
+            # Display history after every accepted guess.
+            self.show_history()
+
             # Win condition.
             if guess == self.target:
                 print("Solved!")
+                self.show_summary("Won")
                 return
 
         # Six accepted guesses were used without solving.
         print("Out of guesses!")
         print("The word was:", self.target)
+        self.show_history()
+        self.show_summary("Lost")
+
+
+if __name__ == "__main__":
+    WordleGame().run()
